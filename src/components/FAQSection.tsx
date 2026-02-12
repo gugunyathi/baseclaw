@@ -34,7 +34,7 @@ const FAQSection = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.5 }}
-      className="w-full max-w-2xl mx-auto mt-20 px-4 pb-20"
+      className="w-full max-w-2xl mx-auto mt-12 sm:mt-20 px-3 sm:px-4 pb-12 sm:pb-20"
     >
       <h2 className="text-2xl font-bold text-foreground text-center mb-8">
         Frequently Asked Questions

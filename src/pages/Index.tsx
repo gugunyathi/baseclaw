@@ -8,7 +8,7 @@ const Index = () => {
     <div className="min-h-screen bg-background relative overflow-hidden">
       {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50 glass">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-3 sm:px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-xl font-black text-primary">🦀</span>
             <span className="text-lg font-bold text-foreground tracking-tight">BaseClaw</span>
@@ -26,7 +26,7 @@ const Index = () => {
 
       <HeroSection />
       
-      <div className="relative z-10 px-4">
+      <div className="relative z-10 px-3 sm:px-4 md:px-6">
         <WalletSection />
         <DeployForm />
       </div>

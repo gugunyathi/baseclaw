@@ -53,13 +53,26 @@ const PaymentModal = ({ open, onClose, formData }: PaymentModalProps) => {
         email: formData.email,
         wallet_address: formData.walletAddress,
         llm_provider: formData.llmProvider,
-        llm_api_key_encrypted: formData.apiKey, // In prod, encrypt before storing
+        llm_api_key_encrypted: formData.apiKey,
         telegram_bot_token_encrypted: formData.telegramToken || null,
         deployment_status: 'pending_manual_deploy',
         payment_tx_hash: '0x_simulated_' + Date.now(),
       });
 
       if (error) throw error;
+
+      // Send confirmation email via edge function
+      try {
+        await supabase.functions.invoke('send-confirmation-email', {
+          body: {
+            email: formData.email,
+            walletAddress: formData.walletAddress,
+            llmProvider: formData.llmProvider,
+          },
+        });
+      } catch (emailErr) {
+        console.warn('Email send failed (non-blocking):', emailErr);
+      }
 
       // Wait for progress to finish
       await new Promise((r) => setTimeout(r, 4000));
@@ -188,7 +201,7 @@ const PaymentModal = ({ open, onClose, formData }: PaymentModalProps) => {
               animate={{ opacity: 1, scale: 1 }}
               className="flex flex-col items-center py-6 gap-4"
             >
-              <CheckCircle2 className="w-14 h-14 text-green-400" />
+              <CheckCircle2 className="w-14 h-14 text-accent" />
               <div className="text-center space-y-2">
                 <p className="text-foreground font-semibold">Your agent is live!</p>
                 <p className="text-sm text-muted-foreground">
