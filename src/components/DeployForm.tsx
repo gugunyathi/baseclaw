@@ -30,9 +30,9 @@ const DeployForm = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
-        className="w-full max-w-lg mx-auto mt-10"
+        className="w-full max-w-lg mx-auto mt-6 sm:mt-10 px-1"
       >
-        <div className="glass rounded-xl p-6 md:p-8 space-y-5">
+        <div className="glass rounded-xl p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5">
           <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
             <Bot className="w-5 h-5 text-primary" />
             Configure Your Agent

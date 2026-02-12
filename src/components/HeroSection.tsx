@@ -9,7 +9,7 @@ const features = [
 
 const HeroSection = () => {
   return (
-    <section className="relative min-h-[70vh] flex flex-col items-center justify-center text-center px-4 pt-24 pb-16">
+    <section className="relative min-h-[60vh] sm:min-h-[70vh] flex flex-col items-center justify-center text-center px-4 sm:px-6 pt-20 sm:pt-24 pb-12 sm:pb-16">
       {/* Background mesh */}
       <div className="absolute inset-0 gradient-mesh pointer-events-none" />
       
@@ -33,19 +33,19 @@ const HeroSection = () => {
           <span className="text-sm font-mono text-primary">Powered by Base L2</span>
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-6">
+        <h1 className="text-3xl sm:text-5xl md:text-7xl font-black tracking-tight mb-4 sm:mb-6">
           <span className="text-foreground">Launch your </span>
           <span className="text-primary glow-text">AI Agent</span>
           <br />
           <span className="text-foreground">in 60 seconds</span>
         </h1>
 
-        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-4 leading-relaxed">
+        <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-4 leading-relaxed px-2">
           Deploy your private <span className="text-foreground font-semibold">OpenClaw</span> instance. 
           Pay once with USDC on Base (~$12). No servers, no SSH. Runs 24/7.
         </p>
 
-        <div className="flex items-center justify-center gap-6 mt-10">
+        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mt-6 sm:mt-10">
           {features.map((f, i) => (
             <motion.div
               key={f.label}
