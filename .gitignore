@@ -17,6 +17,7 @@ dist-ssr
 out/
 build/
 .vercel
+.env
 .env*.local
 
 # Editor directories and files
