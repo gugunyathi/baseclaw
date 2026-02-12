@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -26,16 +28,61 @@ interface PaymentModalProps {
 const PaymentModal = ({ open, onClose, formData }: PaymentModalProps) => {
   const [stage, setStage] = useState<DeployStage>('confirm');
   const [progress, setProgress] = useState(0);
+  const [paymentId, setPaymentId] = useState<string>('');
   const { toast } = useToast();
 
   const handlePay = async () => {
     setStage('processing');
     
-    // Simulate payment detection (2s)
-    await new Promise((r) => setTimeout(r, 2000));
-    
-    setStage('deploying');
-    
+    try {
+      // Dynamically import Base Pay SDK (browser only)
+      const { pay, getPaymentStatus } = await import('@base-org/account');
+      
+      // Initiate Base Pay payment
+      const { id } = await pay({
+        amount: USDC_AMOUNT.toString(),
+        to: PAYMENT_ADDRESS,
+        // Remove testnet line for production, or set to false
+        // testnet: true
+      });
+
+      setPaymentId(id);
+      
+      // Poll payment status
+      let attempts = 0;
+      const maxAttempts = 30; // 30 seconds max wait
+      
+      while (attempts < maxAttempts) {
+        await new Promise((r) => setTimeout(r, 1000));
+        
+        const { status } = await getPaymentStatus({ id });
+        
+        if (status === 'completed') {
+          // Payment successful, proceed to deployment
+          setStage('deploying');
+          await deployAgent(id);
+          return;
+        } else if (status === 'failed') {
+          throw new Error('Payment failed');
+        }
+        
+        attempts++;
+      }
+      
+      throw new Error('Payment timeout');
+    } catch (err) {
+      console.error('Payment error:', err);
+      toast({
+        title: 'Payment Failed',
+        description: 'Unable to process payment. Please try again.',
+        variant: 'destructive',
+      });
+      setStage('confirm');
+      setProgress(0);
+    }
+  };
+
+  const deployAgent = async (txHash: string) => {
     // Simulate deployment progress
     const interval = setInterval(() => {
       setProgress((p) => {
@@ -56,7 +103,7 @@ const PaymentModal = ({ open, onClose, formData }: PaymentModalProps) => {
         llm_api_key_encrypted: 'managed_by_baseclaw',
         telegram_bot_token_encrypted: formData.telegramToken || null,
         deployment_status: 'pending_manual_deploy',
-        payment_tx_hash: '0x_simulated_' + Date.now(),
+        payment_tx_hash: txHash,
       });
 
       if (error) throw error;
@@ -148,11 +195,11 @@ const PaymentModal = ({ open, onClose, formData }: PaymentModalProps) => {
               </div>
 
               <p className="text-xs text-muted-foreground">
-                For this demo, clicking &quot;Pay&quot; simulates a payment. On-chain USDC integration coming soon.
+                You&apos;ll be prompted to complete the payment with Base Pay. Make sure you have USDC on Base network.
               </p>
 
               <Button onClick={handlePay} className="w-full py-5 font-bold glow-cyan">
-                Pay {USDC_AMOUNT} USDC
+                Pay {USDC_AMOUNT} USDC with Base Pay
               </Button>
             </motion.div>
           )}
