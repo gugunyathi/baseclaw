@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 
 const PAYMENT_ADDRESS = '0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18';
 const USDC_AMOUNT = 12;
+const USE_TESTNET = true; // Set to false for production (Mainnet)
 
 type DeployStage = 'confirm' | 'processing' | 'deploying' | 'success';
 
@@ -38,29 +39,41 @@ const PaymentModal = ({ open, onClose, formData }: PaymentModalProps) => {
       // Dynamically import Base Pay SDK (browser only)
       const { pay, getPaymentStatus } = await import('@base-org/account');
       
-      // Initiate Base Pay payment
-      const { id } = await pay({
+      // Initiate Base Pay payment with payer info collection
+      const payment = await pay({
         amount: USDC_AMOUNT.toString(),
         to: PAYMENT_ADDRESS,
-        // Remove testnet line for production, or set to false
-        // testnet: true
+        testnet: USE_TESTNET, // Must match in getPaymentStatus
+        payerInfo: {
+          requests: [
+            { type: 'email' } // Collect email at checkout
+          ]
+        }
       });
 
-      setPaymentId(id);
+      setPaymentId(payment.id);
       
-      // Poll payment status
+      // Log collected payer info
+      if (payment.payerInfoResponses?.email) {
+        console.log('Payment email:', payment.payerInfoResponses.email);
+      }
+      
+      // Poll payment status (testnet parameter MUST match pay() call)
       let attempts = 0;
       const maxAttempts = 30; // 30 seconds max wait
       
       while (attempts < maxAttempts) {
         await new Promise((r) => setTimeout(r, 1000));
         
-        const { status } = await getPaymentStatus({ id });
+        const { status } = await getPaymentStatus({ 
+          id: payment.id,
+          testnet: USE_TESTNET // MUST match the testnet setting used in pay()
+        });
         
         if (status === 'completed') {
           // Payment successful, proceed to deployment
           setStage('deploying');
-          await deployAgent(id);
+          await deployAgent(payment.id, payment.payerInfoResponses?.email);
           return;
         } else if (status === 'failed') {
           throw new Error('Payment failed');
@@ -69,12 +82,12 @@ const PaymentModal = ({ open, onClose, formData }: PaymentModalProps) => {
         attempts++;
       }
       
-      throw new Error('Payment timeout');
-    } catch (err) {
+      throw new Error('Payment timeout - transaction may still complete');
+    } catch (err: any) {
       console.error('Payment error:', err);
       toast({
         title: 'Payment Failed',
-        description: 'Unable to process payment. Please try again.',
+        description: err?.message || 'Unable to process payment. Please try again.',
         variant: 'destructive',
       });
       setStage('confirm');
@@ -82,7 +95,7 @@ const PaymentModal = ({ open, onClose, formData }: PaymentModalProps) => {
     }
   };
 
-  const deployAgent = async (txHash: string) => {
+  const deployAgent = async (txHash: string, payerEmail?: string) => {
     // Simulate deployment progress
     const interval = setInterval(() => {
       setProgress((p) => {
@@ -97,7 +110,7 @@ const PaymentModal = ({ open, onClose, formData }: PaymentModalProps) => {
     try {
       // Save to database
       const { error } = await supabase.from('deployments').insert({
-        email: formData.email,
+        email: payerEmail || formData.email, // Use payer email from Base Pay if available
         wallet_address: formData.walletAddress,
         llm_provider: formData.llmModel,
         llm_api_key_encrypted: 'managed_by_baseclaw',
@@ -112,7 +125,7 @@ const PaymentModal = ({ open, onClose, formData }: PaymentModalProps) => {
       try {
         await supabase.functions.invoke('send-confirmation-email', {
           body: {
-            email: formData.email,
+            email: payerEmail || formData.email,
             walletAddress: formData.walletAddress,
             llmModel: formData.llmModel,
           },
@@ -179,7 +192,9 @@ const PaymentModal = ({ open, onClose, formData }: PaymentModalProps) => {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Network</span>
-                  <span className="text-foreground font-mono">Base (L2)</span>
+                  <span className="text-foreground font-mono">
+                    {USE_TESTNET ? 'Base Sepolia (Testnet)' : 'Base (Mainnet)'}
+                  </span>
                 </div>
                 <div className="border-t border-border pt-3">
                   <p className="text-xs text-muted-foreground mb-1">Send to:</p>
@@ -194,8 +209,25 @@ const PaymentModal = ({ open, onClose, formData }: PaymentModalProps) => {
                 </div>
               </div>
 
+              {USE_TESTNET && (
+                <div className="rounded-lg bg-blue-500/10 border border-blue-500/20 p-3">
+                  <p className="text-xs text-blue-400 mb-2">
+                    🧪 Testnet Mode: Get free test USDC from the{' '}
+                    <a 
+                      href="https://faucet.circle.com" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="underline hover:text-blue-300"
+                    >
+                      Circle Faucet
+                    </a>
+                    {' '}(select &quot;Base Sepolia&quot;)
+                  </p>
+                </div>
+              )}
+
               <p className="text-xs text-muted-foreground">
-                You&apos;ll be prompted to complete the payment with Base Pay. Make sure you have USDC on Base network.
+                You&apos;ll be prompted to complete the payment with Base Pay. {USE_TESTNET ? 'This is a test transaction.' : 'Make sure you have USDC in your Base Account.'}
               </p>
 
               <Button onClick={handlePay} className="w-full py-5 font-bold glow-cyan">
@@ -213,7 +245,9 @@ const PaymentModal = ({ open, onClose, formData }: PaymentModalProps) => {
               className="flex flex-col items-center py-8 gap-4"
             >
               <Loader2 className="w-10 h-10 text-primary animate-spin" />
-              <p className="text-sm text-muted-foreground">Detecting payment on Base...</p>
+              <p className="text-sm text-muted-foreground">
+                {USE_TESTNET ? 'Processing payment on Base Sepolia...' : 'Processing payment on Base...'}
+              </p>
             </motion.div>
           )}
 
