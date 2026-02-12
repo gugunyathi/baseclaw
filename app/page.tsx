@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import HeroSection from '@/components/HeroSection';
-import WalletSection from '@/components/WalletSection';
 import DeployForm from '@/components/DeployForm';
 import FAQSection from '@/components/FAQSection';
 import { SignInWithBaseButton } from '@base-org/account-ui/react';
@@ -134,7 +133,6 @@ export default function Home() {
       <HeroSection />
       
       <div className="relative z-10 px-3 sm:px-4 md:px-6">
-        <WalletSection />
         <DeployForm />
       </div>
 
