@@ -148,7 +148,7 @@ const PaymentModal = ({ open, onClose, formData }: PaymentModalProps) => {
               </div>
 
               <p className="text-xs text-muted-foreground">
-                For this demo, clicking "Pay" simulates a payment. On-chain USDC integration coming soon.
+                For this demo, clicking &quot;Pay&quot; simulates a payment. On-chain USDC integration coming soon.
               </p>
 
               <Button onClick={handlePay} className="w-full py-5 font-bold glow-cyan">
@@ -209,7 +209,7 @@ const PaymentModal = ({ open, onClose, formData }: PaymentModalProps) => {
                 </p>
               </div>
               <p className="text-xs text-muted-foreground/60 text-center">
-                We'll manually deploy your instance within 24h and email your credentials.
+                We&apos;ll manually deploy your instance within 24h and email your credentials.
               </p>
               <Button onClick={handleClose} variant="outline" className="mt-2">
                 Close

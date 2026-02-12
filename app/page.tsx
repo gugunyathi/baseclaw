@@ -1,9 +1,14 @@
+'use client';
+
 import HeroSection from '@/components/HeroSection';
 import WalletSection from '@/components/WalletSection';
 import DeployForm from '@/components/DeployForm';
 import FAQSection from '@/components/FAQSection';
 
-const Index = () => {
+// Force dynamic rendering since we use client-side features
+export const dynamic = 'force-dynamic';
+
+export default function Home() {
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       {/* Navbar */}
@@ -42,6 +47,4 @@ const Index = () => {
       </footer>
     </div>
   );
-};
-
-export default Index;
+}
