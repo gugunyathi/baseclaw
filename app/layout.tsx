@@ -9,7 +9,8 @@ import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
 import { config } from '@/lib/wagmi-config';
 import "./globals.css";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { sdk } from '@farcaster/miniapp-sdk';
 
 export default function RootLayout({
   children,
@@ -18,11 +19,15 @@ export default function RootLayout({
 }) {
   const [queryClient] = useState(() => new QueryClient());
 
+  useEffect(() => {
+    sdk.actions.ready();
+  }, []);
+
   return (
     <html lang="en">
       <head>
         <title>BaseClaw - Launch your AI Agent in 60 seconds</title>
-        <meta name="description" content="Deploy your private OpenClaw instance. Pay once with USDC on Base. No servers, no SSH. Runs 24/7." />
+        <meta name="description" content="Deploy your private BaseClaw instance. Pay once with USDC on Base. No servers, no SSH. Runs 24/7." />
       </head>
       <body>
         <WagmiProvider config={config}>

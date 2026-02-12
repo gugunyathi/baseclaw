@@ -17,8 +17,8 @@ interface PaymentModalProps {
   formData: {
     email: string;
     walletAddress: string;
-    llmProvider: string;
-    apiKey: string;
+    llmModel: string;
+    channel: string;
     telegramToken: string;
   };
 }
@@ -52,8 +52,8 @@ const PaymentModal = ({ open, onClose, formData }: PaymentModalProps) => {
       const { error } = await supabase.from('deployments').insert({
         email: formData.email,
         wallet_address: formData.walletAddress,
-        llm_provider: formData.llmProvider,
-        llm_api_key_encrypted: formData.apiKey,
+        llm_provider: formData.llmModel,
+        llm_api_key_encrypted: 'managed_by_baseclaw',
         telegram_bot_token_encrypted: formData.telegramToken || null,
         deployment_status: 'pending_manual_deploy',
         payment_tx_hash: '0x_simulated_' + Date.now(),
@@ -67,7 +67,7 @@ const PaymentModal = ({ open, onClose, formData }: PaymentModalProps) => {
           body: {
             email: formData.email,
             walletAddress: formData.walletAddress,
-            llmProvider: formData.llmProvider,
+            llmModel: formData.llmModel,
           },
         });
       } catch (emailErr) {
@@ -186,7 +186,7 @@ const PaymentModal = ({ open, onClose, formData }: PaymentModalProps) => {
                 />
               </div>
               <p className="text-sm text-center text-muted-foreground">
-                Spinning up your OpenClaw instance... {Math.round(Math.min(progress, 100))}%
+                Spinning up your BaseClaw instance... {Math.round(Math.min(progress, 100))}%
               </p>
               <p className="text-xs text-center text-muted-foreground/60">
                 Estimated: 45–90 seconds

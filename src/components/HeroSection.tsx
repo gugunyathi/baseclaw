@@ -26,7 +26,7 @@ const HeroSection = () => {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: 'easeOut' }}
-        className="relative z-10 max-w-3xl mx-auto"
+        className="relative z-10 max-w-5xl mx-auto"
       >
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 mb-8">
           <span className="w-2 h-2 rounded-full bg-primary animate-pulse-glow" />
@@ -35,13 +35,14 @@ const HeroSection = () => {
 
         <h1 className="text-3xl sm:text-5xl md:text-7xl font-black tracking-tight mb-4 sm:mb-6">
           <span className="text-foreground">Launch your </span>
-          <span className="text-primary glow-text">AI Agent</span>
+          <span className="text-primary glow-text">BaseClaw</span>
           <br />
-          <span className="text-foreground">in 60 seconds</span>
+          <span className="text-primary glow-text">AI Agent </span>
+          <span className="text-foreground whitespace-nowrap">in 60 seconds</span>
         </h1>
 
         <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-4 leading-relaxed px-2">
-          Deploy your private <span className="text-foreground font-semibold">OpenClaw</span> instance. 
+          Deploy your private <span className="text-foreground font-semibold">BaseClaw</span> instance. 
           Pay once with USDC on Base (~$12). No servers, no SSH. Runs 24/7.
         </p>
 

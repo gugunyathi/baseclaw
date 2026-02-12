@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import HeroSection from '@/components/HeroSection';
 import WalletSection from '@/components/WalletSection';
 import DeployForm from '@/components/DeployForm';
@@ -15,8 +16,14 @@ export default function Home() {
       <nav className="fixed top-0 left-0 right-0 z-50 glass">
         <div className="max-w-5xl mx-auto px-3 sm:px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-xl font-black text-primary">🦀</span>
-            <span className="text-lg font-bold text-foreground tracking-tight">BaseClaw</span>
+            <Image 
+              src="/assets/blue crab icon.png" 
+              alt="BaseClaw" 
+              width={32} 
+              height={32} 
+              className="w-8 h-8 object-contain"
+            />
+            <span className="text-lg font-bold text-primary tracking-tight">BaseClaw</span>
           </div>
           <a 
             href="https://base.org" 
