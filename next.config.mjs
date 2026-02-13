@@ -20,21 +20,16 @@ const nextConfig = {
       zlib: false,
       path: false,
       os: false,
+      '@react-native-async-storage/async-storage': false,
     };
 
     // Ignore optional dependencies from wagmi connectors
     config.plugins.push(
       new webpack.IgnorePlugin({
-        resourceRegExp: /^@base-org\/account$/,
-      }),
-      new webpack.IgnorePlugin({
         resourceRegExp: /^@coinbase\/wallet-sdk$/,
       }),
       new webpack.IgnorePlugin({
         resourceRegExp: /^@gemini-wallet\/core$/,
-      }),
-      new webpack.IgnorePlugin({
-        resourceRegExp: /^@metamask\/sdk$/,
       }),
       new webpack.IgnorePlugin({
         resourceRegExp: /^@safe-global\/safe-apps-sdk$/,

@@ -15,31 +15,36 @@ export default function Home() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [userAddress, setUserAddress] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [sdkProvider, setSdkProvider] = useState<any>(null);
+  const [sdk, setSdk] = useState<any>(null);
   const { toast } = useToast();
 
   useEffect(() => {
-    // Dynamically import SDK to avoid SSR issues
-    const initSDK = async () => {
-      try {
-        const { createBaseAccountSDK } = await import('@base-org/account');
-        const sdk = createBaseAccountSDK({
-          appName: 'BaseClaw',
-          appLogoUrl: 'https://baseclawbot.vercel.app/assets/blue crab icon.png',
-        });
-        setSdkProvider(sdk.getProvider());
-      } catch (error) {
-        console.error('Failed to initialize SDK:', error);
-      }
-    };
-    initSDK();
+    // Initialize SDK only on client side
+    import('@base-org/account').then(({ createBaseAccountSDK }) => {
+      const sdkInstance = createBaseAccountSDK({
+        appName: 'BaseClaw',
+        appLogoUrl: 'https://baseclawbot.vercel.app/assets/blue crab icon.png',
+      });
+      setSdk(sdkInstance);
+    }).catch((error) => {
+      console.error('Failed to load SDK:', error);
+    });
   }, []);
 
   const signInWithBase = async () => {
-    if (!sdkProvider || isLoading) {
+    if (!sdk) {
       toast({
         title: "Error",
-        description: !sdkProvider ? "SDK not initialized yet. Please try again." : "Already signing in...",
+        description: "SDK is still loading. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (isLoading) {
+      toast({
+        title: "Error",
+        description: "Already signing in...",
         variant: "destructive",
       });
       return;
@@ -51,14 +56,16 @@ export default function Home() {
       const nonceResponse = await fetch('/api/auth/nonce');
       const { nonce } = await nonceResponse.json();
 
+      const provider = sdk.getProvider();
+
       // 2. Switch to Base Mainnet
-      await sdkProvider.request({
+      await provider.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: '0x2105' }], // Base Mainnet
       });
 
       // 3. Connect and authenticate
-      const { accounts } = await sdkProvider.request({
+      const response = await provider.request({
         method: 'wallet_connect',
         params: [
           {
@@ -71,8 +78,9 @@ export default function Home() {
             },
           },
         ],
-      });
+      }) as any;
 
+      const { accounts } = response;
       const { address } = accounts[0];
       const { message, signature } = accounts[0].capabilities.signInWithEthereum;
 
