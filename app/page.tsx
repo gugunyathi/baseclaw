@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import HeroSection from '@/components/HeroSection';
 import DeployForm from '@/components/DeployForm';
@@ -14,19 +14,32 @@ export const dynamic = 'force-dynamic';
 export default function Home() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [userAddress, setUserAddress] = useState<string>('');
+  const [sdk, setSdk] = useState<any>(null);
   const { toast } = useToast();
 
-  const signInWithBase = async () => {
-    try {
-      // Dynamically import SDK (browser only)
+  // Initialize SDK on client side only
+  useEffect(() => {
+    const initSDK = async () => {
       const { createBaseAccountSDK } = await import('@base-org/account');
-      
-      // Initialize the SDK
-      const sdk = createBaseAccountSDK({
+      const sdkInstance = createBaseAccountSDK({
         appName: 'BaseClaw',
         appLogoUrl: 'https://baseclawbot.vercel.app/assets/blue%20crab%20icon.png',
       });
+      setSdk(sdkInstance);
+    };
+    initSDK();
+  }, []);
 
+  const signInWithBase = async () => {
+    if (!sdk) {
+      toast({
+        title: 'Loading...',
+        description: 'SDK is still initializing. Please try again.',
+      });
+      return;
+    }
+
+    try {
       // Simple wallet connect (opens wallet popup)
       await sdk.getProvider().request({ method: 'wallet_connect' });
       
