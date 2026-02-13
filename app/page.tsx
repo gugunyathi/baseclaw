@@ -6,6 +6,7 @@ import HeroSection from '@/components/HeroSection';
 import DeployForm from '@/components/DeployForm';
 import FAQSection from '@/components/FAQSection';
 import { useToast } from '@/hooks/use-toast';
+import { SignInWithBaseButton } from '@base-org/account-ui/react';
 
 // Force dynamic rendering since we use client-side features
 export const dynamic = 'force-dynamic';
@@ -35,10 +36,10 @@ export default function Home() {
   }, []);
 
   const signInWithBase = async () => {
-    if (!sdkProvider) {
+    if (!sdkProvider || isLoading) {
       toast({
         title: "Error",
-        description: "SDK not initialized yet. Please try again.",
+        description: !sdkProvider ? "SDK not initialized yet. Please try again." : "Already signing in...",
         variant: "destructive",
       });
       return;
@@ -128,14 +129,10 @@ export default function Home() {
                 {userAddress.slice(0, 6)}...{userAddress.slice(-4)}
               </span>
             ) : (
-              <button
+              <SignInWithBaseButton
+                colorScheme="light"
                 onClick={signInWithBase}
-                disabled={isLoading || !sdkProvider}
-                className="flex items-center gap-2 px-3 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <div className="w-4 h-4 bg-white rounded-sm flex-shrink-0" />
-                <span>{isLoading ? 'Signing in...' : 'Sign in with Base'}</span>
-              </button>
+              />
             )}
             
             <a 
