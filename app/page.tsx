@@ -22,59 +22,29 @@ export default function Home() {
       const { createBaseAccountSDK } = await import('@base-org/account');
       
       // Initialize the SDK
-      const provider = createBaseAccountSDK({
+      const sdk = createBaseAccountSDK({
         appName: 'BaseClaw',
         appLogoUrl: 'https://baseclawbot.vercel.app/assets/blue%20crab%20icon.png',
-      }).getProvider();
-
-      // Generate nonce locally (or fetch from backend)
-      const nonce = window.crypto.randomUUID().replace(/-/g, '');
-
-      // Switch to Base Chain
-      await provider.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: '0x2105' }], // Base Mainnet - 8453
       });
 
-      // Connect and authenticate with Sign in with Ethereum
-      const response: any = await provider.request({
-        method: 'wallet_connect',
-        params: [
-          {
-            version: '1',
-            capabilities: {
-              signInWithEthereum: {
-                nonce,
-                chainId: '0x2105', // Base Mainnet
-              },
-            },
-          },
-        ],
+      // Simple wallet connect (opens wallet popup)
+      await sdk.getProvider().request({ method: 'wallet_connect' });
+      
+      // Get the connected address
+      const accounts: any = await sdk.getProvider().request({ 
+        method: 'eth_accounts' 
       });
+      
+      if (accounts && accounts.length > 0) {
+        const address = accounts[0];
+        setIsSignedIn(true);
+        setUserAddress(address);
 
-      const { address } = response.accounts[0];
-      const { message, signature } = response.accounts[0].capabilities.signInWithEthereum;
-
-      // Send to backend for verification
-      const verifyResponse = await fetch('/api/auth/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address, message, signature }),
-      });
-
-      if (!verifyResponse.ok) {
-        const error = await verifyResponse.json();
-        throw new Error(error.error || 'Verification failed');
+        toast({
+          title: 'Signed in successfully!',
+          description: `Connected as ${address.slice(0, 6)}...${address.slice(-4)}`,
+        });
       }
-
-      // Store authentication state
-      setIsSignedIn(true);
-      setUserAddress(address);
-
-      toast({
-        title: 'Signed in successfully!',
-        description: `Connected as ${address.slice(0, 6)}...${address.slice(-4)}`,
-      });
     } catch (error: any) {
       console.error('Sign in failed:', error);
       toast({
