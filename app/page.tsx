@@ -1,73 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import HeroSection from '@/components/HeroSection';
 import DeployForm from '@/components/DeployForm';
 import FAQSection from '@/components/FAQSection';
-import { SignInWithBaseButton } from '@base-org/account-ui/react';
-import { useToast } from '@/hooks/use-toast';
 
 // Force dynamic rendering since we use client-side features
 export const dynamic = 'force-dynamic';
 
 export default function Home() {
-  const [isSignedIn, setIsSignedIn] = useState(false);
-  const [userAddress, setUserAddress] = useState<string>('');
-  const [sdk, setSdk] = useState<any>(null);
-  const { toast } = useToast();
-
-  // Initialize SDK on client side only
-  useEffect(() => {
-    const initSDK = async () => {
-      const { createBaseAccountSDK } = await import('@base-org/account');
-      const sdkInstance = createBaseAccountSDK({
-        appName: 'BaseClaw',
-        appLogoUrl: 'https://baseclawbot.vercel.app/assets/blue%20crab%20icon.png',
-      });
-      setSdk(sdkInstance);
-    };
-    initSDK();
-  }, []);
-
-  const signInWithBase = async () => {
-    if (!sdk) {
-      toast({
-        title: 'Loading...',
-        description: 'SDK is still initializing. Please try again.',
-      });
-      return;
-    }
-
-    try {
-      // Simple wallet connect (opens wallet popup)
-      await sdk.getProvider().request({ method: 'wallet_connect' });
-      
-      // Get the connected address
-      const accounts: any = await sdk.getProvider().request({ 
-        method: 'eth_accounts' 
-      });
-      
-      if (accounts && accounts.length > 0) {
-        const address = accounts[0];
-        setIsSignedIn(true);
-        setUserAddress(address);
-
-        toast({
-          title: 'Signed in successfully!',
-          description: `Connected as ${address.slice(0, 6)}...${address.slice(-4)}`,
-        });
-      }
-    } catch (error: any) {
-      console.error('Sign in failed:', error);
-      toast({
-        title: 'Sign in failed',
-        description: error?.message || 'Unable to sign in with Base',
-        variant: 'destructive',
-      });
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       {/* Navbar */}
@@ -84,32 +26,14 @@ export default function Home() {
             <span className="text-lg font-bold text-primary tracking-tight">BaseClaw</span>
           </div>
           
-          <div className="flex items-center gap-3">
-            {isSignedIn ? (
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-mono text-muted-foreground">
-                  {userAddress.slice(0, 6)}...{userAddress.slice(-4)}
-                </span>
-                <div className="w-2 h-2 rounded-full bg-green-500" />
-              </div>
-            ) : (
-              <SignInWithBaseButton
-                colorScheme="light"
-                align="center"
-                variant="solid"
-                onClick={signInWithBase}
-              />
-            )}
-            
-            <a 
-              href="https://base.org" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-xs font-mono text-muted-foreground hover:text-primary transition-colors hidden sm:block"
-            >
-              Built on Base
-            </a>
-          </div>
+          <a 
+            href="https://base.org" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-xs font-mono text-muted-foreground hover:text-primary transition-colors"
+          >
+            Built on Base
+          </a>
         </div>
       </nav>
 
